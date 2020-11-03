@@ -1,4 +1,4 @@
-import { useStorageSQLite } from './useStorageSQLite';
+import { availableFeatures, useStorageSQLite } from './useStorageSQLite';
 
 jest.mock('@capacitor/core', () => {
     let mDatabases: any = {};
@@ -132,6 +132,7 @@ it('Gets and sets storage values from default', async () => {
         isKey, getAllKeys, getAllValues, getAllKeysValues,
         deleteStore, isAvailable } = useStorageSQLite();
     expect(isAvailable).toBe(true);
+    expect(availableFeatures.useStorageSQLite).toBe(true);
     let res:boolean = await openStore({});
     expect(res).toBe(true);
 
