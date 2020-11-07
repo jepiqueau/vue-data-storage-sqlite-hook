@@ -191,9 +191,8 @@ export default defineComponent({
 
 and then call the component from a view
 
-```js
+```html
 <template>
-  <h1>StoreDefault</h1>
   <Suspense>
     <template #default>
       <DefaultTest />

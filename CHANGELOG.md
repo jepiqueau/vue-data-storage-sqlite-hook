@@ -1,3 +1,13 @@
+## 0.0.4 (2020-11-07)
+
+### Bug Fixes
+
+- remove unnecessary packages in package.json
+
+### Add Features
+
+- add method getFilterValues
+
 ## 0.0.3 (2020-11-03)
 
 ### Bug Fixes

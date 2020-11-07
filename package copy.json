@@ -28,13 +28,20 @@
     "test": "jest"
   },
   "dependencies": {
-    "core-js": "^3.6.5"
+    "core-js": "^3.6.5",
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@capacitor/core": "^2.4.2",
     "@types/jest": "^24.0.23",
-    "capacitor-data-storage-sqlite": "^2.4.2",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "capacitor-data-storage-sqlite": "^2.4.2-2",
     "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0-0",
     "jest": "^24.9.0",
     "jest-environment-jsdom-fourteen": "^0.1.0",
     "np": "^6.5.0",
@@ -53,8 +60,12 @@
       "node": true
     },
     "extends": [
+      "plugin:vue/vue3-essential",
       "eslint:recommended"
     ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
     "rules": {}
   },
   "browserslist": [

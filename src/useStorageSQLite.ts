@@ -13,6 +13,7 @@ interface StorageSQLiteResult extends AvailableResult {
     isKey: (key: string) => Promise<boolean>;
     getAllKeys: () => Promise<string[]>;
     getAllValues: () => Promise<string[]>;
+    getFilterValues: (filter: string) => Promise<string[]>;
     getAllKeysValues: () => Promise<any[]>;
     deleteStore: (options:any) => Promise<boolean>;
 }
@@ -36,6 +37,7 @@ export function useStorageSQLite(): StorageSQLiteResult {
             isKey: featureNotAvailableError,
             getAllKeys: featureNotAvailableError,
             getAllValues: featureNotAvailableError,
+            getFilterValues: featureNotAvailableError,
             getAllKeysValues: featureNotAvailableError,
             deleteStore: featureNotAvailableError,
             ...notAvailable
@@ -168,6 +170,18 @@ export function useStorageSQLite(): StorageSQLiteResult {
         return [];
     };
     /**
+     * getFilterValues
+     */
+    const getFilterValues = async (filter: string) => {
+        const r = await storageSQLite.filtervalues({filter});
+        if(r) {
+            if(r.values) {
+                return r.values;
+            }
+        }
+        return [];
+    };
+    /**
      * getAllKeysValues
      */
     const getAllKeysValues = async () => {
@@ -195,6 +209,7 @@ export function useStorageSQLite(): StorageSQLiteResult {
     };    
 
     return { openStore, setTable, getItem, setItem, removeItem, clear, isKey,
-        getAllKeys, getAllValues,getAllKeysValues, deleteStore, isAvailable: true };
+             getAllKeys, getAllValues, getFilterValues, getAllKeysValues,
+             deleteStore, isAvailable: true };
 
 }
