@@ -1,3 +1,10 @@
+## 0.0.6 (2021-01-06)
+
+### Chore
+
+- @capacitor/core@2.4.5
+- capacitor-data-storage-sqlite@2.4.5
+
 ## 0.0.5 (2020-11-08)
 
 ### Bug Fixes
