@@ -1,3 +1,17 @@
+## 1.0.0 (2021-09-09)
+
+### Chore
+
+- @capacitor/core@3.2.0
+- capacitor-data-storage-sqlite@3.2.0
+
+### Added Features
+
+- add closeStore, isStoreOpen, isStoreExists
+- add importFromJson, isJsonValid, exportToJson methods
+- add isTable, getAllTables, deleteTable
+
+
 ## 0.0.6 (2021-01-06)
 
 ### Chore

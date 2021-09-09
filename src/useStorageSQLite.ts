@@ -1,215 +1,495 @@
-import { Capacitor, Plugins } from '@capacitor/core';
+import { Capacitor} from '@capacitor/core';
 import { AvailableResult, notAvailable } from './util/models';
 import { isFeatureAvailable, featureNotAvailableError } from './util/feature-check';
-import 'capacitor-data-storage-sqlite';
+import { CapacitorDataStorageSqlite, JsonStore } from 'capacitor-data-storage-sqlite';
 
-interface StorageSQLiteResult extends AvailableResult {
-    openStore: (options: any) => Promise<boolean>;
-    setTable: (table: string) => Promise<{result: boolean, message: string}>;
-    getItem: (key: string) => Promise<string | null>;
-    setItem: (key: string, value: string) => Promise<void>;
-    removeItem: (key: string) => Promise<boolean>;
-    clear: () => Promise<boolean>;
-    isKey: (key: string) => Promise<boolean>;
-    getAllKeys: () => Promise<string[]>;
-    getAllValues: () => Promise<string[]>;
-    getFilterValues: (filter: string) => Promise<string[]>;
-    getAllKeysValues: () => Promise<any[]>;
-    deleteStore: (options:any) => Promise<boolean>;
+
+export interface StorageSQLiteHook extends AvailableResult {
+    /**
+     *
+     * @param options: {value:string}
+     * @return Promise<{value:string}>
+     * @since 1.0.0
+     */
+    echo(value: string): Promise<{value:string}>;
+    /**
+     * Get platform
+     * @returns Promise<{platform: string}>
+     * @since 1.0.0
+     */
+    getPlatform(): Promise<{platform: string}>;
+     /**
+     * Open a store
+     * @param options: {database?: string, table?: string,
+     *                  encrypted?: boolean, mode?: string}
+     * @returns Promise<void>
+     * @since 0.0.1
+     */
+    openStore(options: {database?: string, table?: string,
+                encrypted?: boolean, mode?: string}): Promise<void>;
+    /**
+     * Close a store
+     * Not implemented for Web platform
+     * @param options: {database?: string}
+     * @returns Promise<void>
+     * @since 1.0.0
+     */
+    closeStore(options: {database?: string}): Promise<void>;
+    /**
+     * Check if a store is open
+     * Not implemented for Web platform
+     * @param options: {database?: string}
+     * @returns Promise<boolean>
+     * @since 1.0.0
+     */
+    isStoreOpen(options: {database?: string}): Promise<boolean>;
+    /**
+     * Check if a store exists
+     * Not implemented for Web platform
+     * @param options: {database?: string}
+     * @returns Promise<boolean>
+     * @since 1.0.0
+     */
+    isStoreExists(options: {database?: string}): Promise<boolean>;
+    /**
+     * Delete a store
+     * Not implemented for Web platform
+     * @param options: {database?: string}
+     * @returns Promise<void>
+     * @since 0.0.1
+     */
+    deleteStore(options: {database?: string}): Promise<void>;
+    /**
+     * Set or Add a table to an existing store
+     * @param options: capTableStorageOptions
+     * @returns Promise<void>
+     * @since 0.0.1
+    */
+    setTable(table: string): Promise<void>;
+    /**
+     * Retrieve a data value for a given data key
+     * @param options: capDataStorageOptions
+     * @returns Promise<capValueResult>
+     * @since 0.0.1
+     */
+    getItem(key: string): Promise<string | null>;
+    /**
+     * Store a data with given key and value
+     * @param key: string
+     * @param value: string
+     * @returns Promise<void>
+     * @since 0.0.1
+     */
+    setItem(key: string, value: string): Promise<void>;
+    /**
+     * Remove a data with given key
+     * @param key: string
+     * @returns Promise<void>
+     * @since 0.0.1
+     */
+    removeItem(key: string): Promise<void>;
+    /**
+     * Clear the Data Store (delete all keys)
+     * @returns Promise<void>
+     * @since 0.0.1
+     */
+    clear(): Promise<void>;
+    /**
+     * Check if a data key exists
+     * @param key: string
+     * @returns Promise<boolean>
+     * @since 0.0.1
+     */
+    isKey(key: string): Promise<boolean>;
+    /**
+     * Get the data key list
+     * @returns Promise<string[]>
+     * @since 0.0.1
+     */
+    getAllKeys(): Promise<string[]>;
+    /**
+     * Get the data value list
+     * @returns Promise<string[]>
+     * @since 0.0.1
+     */
+    getAllValues(): Promise<string[]>;
+    /**
+     * Get the data value list for filter keys
+     * @param filter: string
+     * @returns Promise<string[]>
+     * @since 0.0.2
+     */
+    getFilterValues(filter: string): Promise<string[]>;
+    /**
+     * Get the data key/value pair list
+     * @returns Promise<capKeysValuesResult>
+     * @since 0.0.1
+     */
+    getAllKeysValues(): Promise<any[]>;
+    /**
+     * Check if a table exists
+     * Not implemented for Web platform
+     * @param option: {table?: string}
+     * @returns Promise<boolean>
+     * @since 1.0.0
+     */
+    isTable(options:{table?: string}): Promise<boolean>;
+    /**
+     * Get the table list for the current store
+     * Not implemented for Web platform
+     * @returns Promise<string[]>
+     * @since 1.0.0
+     */
+    getAllTables(): Promise<string[]>;
+    /**
+     * Delete a table
+     * Not implemented for Web platform
+     * @param options:{table?: string}
+     * @returns Promise<void>
+     * @since 1.0.0
+     */
+    deleteTable(options:{table?: string}): Promise<void>;
+  /**
+   * Import a database From a JSON
+   * @param jsonstring string
+   * @returns Promise<number>
+   * @since 1.1.0
+   */
+   importFromJson(jsonstring: string): Promise<number>;
+  /**
+   * Check the validity of a JSON Object
+   * @param jsonstring string
+   * @returns Promise<boolean>
+   * @since 1.1.0
+   */
+  isJsonValid(jsonstring: string): Promise<boolean>;
+  /**
+   * Export the given database to a JSON Object
+   * @returns Promise<JsonStore>
+   * @since 1.1.0
+   */
+  exportToJson(): Promise<JsonStore>;
+
 }
 export const availableFeatures = {
     useStorageSQLite: isFeatureAvailable('CapacitorDataStorageSqlite', 'useStorageSQLite')
 }
 
-export function useStorageSQLite(): StorageSQLiteResult {
-    const { CapacitorDataStorageSqlite } = Plugins;
+export const useStorageSQLite = (): StorageSQLiteHook => {
     const platform = Capacitor.getPlatform();
-    console.log("*** platform " + platform);
     const storageSQLite:any = CapacitorDataStorageSqlite;
-    if (!availableFeatures.useStorageSQLite) {
-        return {
-            openStore: featureNotAvailableError,
-            setTable: featureNotAvailableError,
-            getItem: featureNotAvailableError,
-            setItem: featureNotAvailableError,
-            removeItem: featureNotAvailableError,
-            clear: featureNotAvailableError,
-            isKey: featureNotAvailableError,
-            getAllKeys: featureNotAvailableError,
-            getAllValues: featureNotAvailableError,
-            getFilterValues: featureNotAvailableError,
-            getAllKeysValues: featureNotAvailableError,
-            deleteStore: featureNotAvailableError,
-            ...notAvailable
-        };
-    }
-    /**
-     * openStore
-     * 
-     * @param options 
-     */
+    const echo = async (value: string): Promise<any> => {
+        if(value) {
+            const r = await storageSQLite.echo(value);
+            if(r) {
+                return r;
+            } else {
+                return {value: null};
+            }
+        } else {
+            return {value: null};
+        }
+    };
+    const getPlatform = async (): Promise<any> => {
+        return {platform: platform};
+    };
+
     const openStore = async (options: any) => {
         const database: string = options.database ? options.database : "storage";
         const table: string = options.table ? options.table : "storage_table";
         const encrypted: boolean = options.encrypted ? options.encrypted : false;
         const mode:string = options.mode ? options.mode : "no-encryption";
-        const r = await storageSQLite.openStore({database,table,encrypted,mode});
-        if(r) {
-            if( typeof r.result != 'undefined') {
-                return r.result;
-            }
+        try {
+            await storageSQLite.openStore({database,table,encrypted,mode});
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
         }
-        return false;
+
     };
-    /**
-     * setTable
-     * 
-     * @param table 
-     */
-    const setTable = async (table: string) => {
-        table = table.length > 0 ? table : "storage_table";
-        const r = await storageSQLite.setTable({table});
-        if(r) {
-            if( r.message && r.message.length > 0) {
-                return {result: false, message: r.message};
-            }
-            if( typeof r.result != 'undefined') {
-                if (r.result) {
-                    return { result: r.result, message: ""};
+
+    const closeStore = async (options: any) => {
+        const database: string = options.database ? options.database : "storage";
+        if(platform === "web") return Promise.reject("Not implemented for Web platform");
+        try {
+            await storageSQLite.closeStore({database});
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+
+    const isStoreOpen = async (options: any) => {
+        const database: string = options.database ? options.database : "storage";
+        if(platform === "web") return Promise.reject("Not implemented for Web platform");
+        try {
+            const r = await storageSQLite.isStoreOpen({database});
+            if (r) {
+                if( typeof r.result != 'undefined') {
+                    return Promise.resolve(r.result) ;
                 }
             }
+            return Promise.resolve(false) ;        
+        } catch (err) {
+            return Promise.reject(err);
         }
-        return {result: false, message: "Error in setTable"};
     };
-    /**
-     * getItem
-     * 
-     * @param key 
-     */
-    const getItem = async (key: string) => {
-        const v = await storageSQLite.get({ key });
-        if (v) {
-            if(v.value) {
-                return v.value;
-            }
-        }
-        return null;
-    };
-    /**
-     * setItem
-     * 
-     * @param key 
-     * @param value 
-     */
-    const setItem = async (key: string, value: string) => {
-        await storageSQLite.set({ key, value: value });
-        return
-    };
-    /**
-     * removeItem
-     * 
-     * @param key 
-     */
-    const removeItem = async (key: string) => {
-        const r = await storageSQLite.remove({ key });
-        if(r) {
-            if( typeof r.result != 'undefined') {
-                return r.result;
-            }
-        }
-        return false;
-    };
-    /**
-     * clear
-     */
-    const clear = async () => {
-        const r = await storageSQLite.clear();
-        if(r) {
-            if( typeof r.result != 'undefined') {
-                return r.result;
-            }
-        }
-        return false;
-    };
-    /**
-     * isKey
-     * 
-     * @param key 
-     */
-    const isKey = async (key: string) => {
-        const r = await storageSQLite.iskey({ key });
-        if(r) {
-            if( typeof r.result != 'undefined') {
-                return r.result;
-            }
-        }
-        return false;
-    };
-    /**
-     * getAllKeys
-     */
-    const getAllKeys = async () => {
-        const r = await storageSQLite.keys();
-        if(r) {
-            if(r.keys) {
-                return r.keys;
-            }
-        }
-        return [];
-    };
-    /**
-     * getAllValues
-     */
-    const getAllValues = async () => {
-        const r = await storageSQLite.values();
-        if(r) {
-            if(r.values) {
-                return r.values;
-            }
-        }
-        return [];
-    };
-    /**
-     * getFilterValues
-     */
-    const getFilterValues = async (filter: string) => {
-        const r = await storageSQLite.filtervalues({filter});
-        if(r) {
-            if(r.values) {
-                return r.values;
-            }
-        }
-        return [];
-    };
-    /**
-     * getAllKeysValues
-     */
-    const getAllKeysValues = async () => {
-        const r = await storageSQLite.keysvalues();
-        if(r) {
-            if(r.keysvalues) {
-                return r.keysvalues;
-            }
-        }
-        return [];
-    };
-    /**
-     * deleteStore
-     * @param options 
-     */
-    const deleteStore = async (options: any) => {
+
+    const isStoreExists = async (options: any) => {
         const database: string = options.database ? options.database : "storage";
-        const r = await storageSQLite.deleteStore({database});
-        if(r) {
-            if( typeof r.result != 'undefined') {
-                return r.result;
+        if(platform === "web") return Promise.reject("Not implemented for Web platform");
+        try {
+            const r = await storageSQLite.isStoreExists({database});
+            if (r) {
+                if( typeof r.result != 'undefined') {
+                    return Promise.resolve(r.result) ;
+                }
             }
+            return Promise.resolve(false) ;        
+        } catch (err) {
+            return Promise.reject(err);
         }
-        return false;
+    };
+
+    const deleteStore = async (options: any) => {
+        const database: string = options.database ? options.database
+                                                  : "storage";
+        if(platform === "web") return Promise.reject("Not implemented for Web platform");
+        try {
+            await storageSQLite.deleteStore({database});
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
     };    
 
-    return { openStore, setTable, getItem, setItem, removeItem, clear, isKey,
-             getAllKeys, getAllValues, getFilterValues, getAllKeysValues,
-             deleteStore, isAvailable: true };
+    const setTable = async (table: string) => {
+        table = table.length > 0 ? table : "storage_table";
+        try {
+            await storageSQLite.setTable({table});
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
 
+    const getItem = async (key: string) => {
+        try {
+            const v = await storageSQLite.get({ key });
+            if (v && v.value) {
+                    return Promise.resolve(v.value);
+            } else {
+                return Promise.reject(`no returned value for key ${key}`);
+            }
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+
+    const setItem = async (key: string, value: string) => {
+        try {
+            await storageSQLite.set({ key, value: value });
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const removeItem = async (key: string) => {
+        try {
+            await storageSQLite.remove({ key });
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const clear = async () => {
+        try {
+            const r = await storageSQLite.clear();
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const isKey = async (key: string) => {
+        try {
+            const r = await storageSQLite.iskey({ key });
+
+            if(r) {
+                if( typeof r.result != 'undefined') {
+                    return Promise.resolve(r.result) ;
+                }
+            }
+            return Promise.resolve(false) ;        
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const getAllKeys = async () => {
+        try {
+            const r = await storageSQLite.keys();
+            if(r) {
+                if(r.keys) {
+                    return Promise.resolve(r.keys);
+                }
+            }
+            return Promise.resolve([]);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const getAllValues = async () => {
+        try {
+            const r = await storageSQLite.values();
+            if(r) {
+                if(r.values) {
+                    return Promise.resolve(r.values);
+                }
+            }
+            return Promise.resolve([]);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const getFilterValues = async (filter: string) => {
+        try {
+            const r = await storageSQLite.filtervalues({ filter });
+            if(r) {
+                if(r.values) {
+                    return Promise.resolve(r.values);
+                }
+            }
+            return Promise.resolve([]);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const getAllKeysValues = async () => {
+        try {
+            const r = await storageSQLite.keysvalues();
+            if(r) {
+                if(r.keysvalues) {
+                    return Promise.resolve(r.keysvalues);
+                }
+            }
+            return Promise.resolve([]);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+
+    const isTable = async (options: any) => {
+        const table: string = options.table ? options.table : "storage_table";
+        try {
+            const r = await storageSQLite.isTable({table});
+            if (r) {
+                if( typeof r.result != 'undefined') {
+                    return Promise.resolve(r.result) ;
+                }
+            }
+            return Promise.resolve(false) ;        
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+
+    const getAllTables = async () => {
+        try {
+            const r = await storageSQLite.tables();
+            if(r) {
+                if(r.tables) {
+                    return Promise.resolve(r.tables);
+                }
+            }
+            return Promise.resolve([]);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+
+    const deleteTable = async (options: any) => {
+        const table: string = options.table ? options.table : "storage_table";
+        if(platform === "web") return Promise.reject("Not implemented for Web platform");
+        try {
+            await storageSQLite.deleteTable({table});
+            return Promise.resolve();
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const importFromJson = async (jsonstring: string) => {
+        try {
+            const r = await storageSQLite.importFromJson({ jsonstring });
+            if(r) {
+                if(r.changes) {
+                    return Promise.resolve(r.changes);
+                }
+            }
+            return Promise.resolve(-1);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const isJsonValid = async (jsonstring: string) => {
+        try {
+            const r = await storageSQLite.isJsonValid({jsonstring});
+            if (r) {
+                if( typeof r.result != 'undefined') {
+                    return Promise.resolve(r.result) ;
+                }
+            }
+            return Promise.resolve(false) ;        
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+    const exportToJson = async () => {
+        try {
+            const r = await storageSQLite.exportToJson();
+            if(r) {
+                if(r.export) {
+                    return Promise.resolve(r.export);
+                }
+            }
+            return Promise.resolve({});
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    };
+
+    if (!availableFeatures.useStorageSQLite) {
+        return {
+            echo: featureNotAvailableError,
+            getPlatform: featureNotAvailableError,
+            openStore: featureNotAvailableError,
+            closeStore: featureNotAvailableError,
+            isStoreOpen: featureNotAvailableError,
+            isStoreExists: featureNotAvailableError,
+            deleteStore: featureNotAvailableError,
+            setTable: featureNotAvailableError,
+            setItem: featureNotAvailableError,
+            getItem: featureNotAvailableError,
+            isKey: featureNotAvailableError,
+            getAllKeys: featureNotAvailableError,
+            getAllValues: featureNotAvailableError,
+            getFilterValues: featureNotAvailableError,
+            getAllKeysValues: featureNotAvailableError,
+            removeItem: featureNotAvailableError,
+            clear: featureNotAvailableError,
+            isTable: featureNotAvailableError,
+            getAllTables: featureNotAvailableError,
+            deleteTable: featureNotAvailableError,
+            importFromJson: featureNotAvailableError,
+            exportToJson: featureNotAvailableError,
+            isJsonValid: featureNotAvailableError,
+            ...notAvailable
+        };
+    } else {
+
+        return { echo, getPlatform, openStore, closeStore, isStoreOpen, isStoreExists,
+            deleteStore, setTable, getItem, setItem, removeItem, clear,
+            isKey, getAllKeys, getAllValues, getFilterValues,
+            getAllKeysValues, isTable, getAllTables, deleteTable,
+            importFromJson, exportToJson, isJsonValid, isAvailable: true
+        };
+    }
 }
