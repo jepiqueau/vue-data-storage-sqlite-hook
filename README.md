@@ -3,10 +3,10 @@
 <h3 align="center">Vue Hook for capacitor-data-storage-sqlite plugin</h3>
 <p align="center"><strong><code>vue-data-storage-sqlite-hook</code></strong></p>
 <br>
-<p align="center"><strong><code>Capacitor 3</code></strong></p>
+<p align="center"><strong><code>Capacitor 4</code></strong></p>
 <br>
 <p align="center">
-    <img src="https://img.shields.io/maintenance/yes/2021?style=flat-square" />
+    <img src="https://img.shields.io/maintenance/yes/2022?style=flat-square" />
     <a href="https://www.npmjs.com/package/vue-data-storage-sqlite-hook"><img src="https://img.shields.io/npm/l/vue-data-storage-sqlite-hook?style=flat-square" /></a>
 <br>
   <a href="https://www.npmjs.com/package/vue-data-storage-sqlite-hook"><img src="https://img.shields.io/npm/dw/vue-data-storage-sqlite-hook?style=flat-square" /></a>
