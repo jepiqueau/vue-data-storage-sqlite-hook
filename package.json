@@ -1,6 +1,6 @@
 {
   "name": "vue-data-storage-sqlite-hook",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Vue Hook for Capacitor Data Storage SQLite",
   "repository": {
     "type": "git",
@@ -54,13 +54,13 @@
     ]
   },
   "peerDependencies": {
-    "@capacitor/core": "^4.0.0"
+    "@capacitor/core": "^5.0.0"
   },
   "devDependencies": {
-    "@capacitor/core": "^4.1.0",
+    "@capacitor/core": "^5.0.3",
     "@capacitor/docgen": "^0.0.18",
     "@types/jest": "^27.4.1",
-    "capacitor-data-storage-sqlite": "4.0.1",
+    "capacitor-data-storage-sqlite": "5.0.1",
     "conventional-changelog": "^3.1.24",
     "eslint": "^8.10.0",
     "jest": "^27.5.1",
